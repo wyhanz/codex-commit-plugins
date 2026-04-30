@@ -1,6 +1,10 @@
 # Codex Commit Plugins
 
-A Codex plugin marketplace for Git commit workflows.
+A Codex plugin marketplace that brings Claude Code-style commit commands to Codex.
+
+## Intent
+
+This repository implements the Claude Code `commit-commands` workflow for Codex. The goal is to provide Codex-native skills for structured commits, commit-and-PR handoff, and stale branch cleanup while preserving the safety checks and workflow ergonomics developers expect from Claude Code's commit plugin.
 
 This repository currently publishes one plugin:
 

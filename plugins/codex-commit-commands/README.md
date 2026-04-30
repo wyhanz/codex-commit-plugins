@@ -1,10 +1,10 @@
 # Codex Commit Commands Plugin
 
-Streamline your git workflow in Codex with explicit skills for committing, pushing, creating pull requests, and cleaning stale local branches.
+Claude Code-style commit commands implemented as Codex skills.
 
 ## Overview
 
-The Codex Commit Commands Plugin automates common git operations, reducing context switching and manual command execution. Instead of running multiple git commands yourself, invoke a single Codex skill to handle the workflow.
+The Codex Commit Commands Plugin brings Claude Code's `commit-commands` workflow to Codex, with runtime rules captured in Codex-native `SKILL.md` files.
 
 ## Commands
 
@@ -43,7 +43,7 @@ $commit
 - Automatically drafts commit messages that match your repo's style
 - Falls back to conventional commit style when no clear repo style exists
 - Avoids committing files that look like secrets or credentials
-- Does not add assistant attribution unless the repo already uses it or you ask for it
+- Adds Codex co-author attribution from `commit_attribution` or the configured model, unless attribution is disabled
 - Does not push, create branches, or open pull requests
 
 ### `$commit-push-pr`
