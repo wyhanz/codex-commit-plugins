@@ -100,38 +100,153 @@ If the staged diff is empty, stop and report why no commit was created.
 
 ## Draft the commit message
 
-Use recent commits to match the repository's style. If no clear style exists, prefer Conventional Commits.
+Use recent commits to match the repository's style, but follow the structured message contract below unless the user explicitly asks for a different format.
 
-Rules:
+### Commit message contract
 
-- Subject line should usually be 72 characters or fewer.
-- Use an imperative verb.
-- Mention the changed component or behavior.
-- Use a body only when it adds useful context.
-- Do not mention files mechanically unless that is the repository style.
-- Add attribution only if the repository already uses it or the user asks for it.
+Default shape:
+
+```text
+<type>(optional-scope): <primary change>
+
+<details body>
+
+Co-Authored-By: Codex <current-model> <noreply@openai.com>
+```
+
+Subject rules:
+
+- Use Conventional Commit type by default: `feat`, `fix`, `docs`, `chore`, `refactor`, `test`, `build`, `ci`, `perf`, or `style`.
+- Include a scope when it clarifies the affected component: `docs(api): ...`, `chore(gitignore): ...`, `feat(sdk): ...`.
+- Keep the subject concise, usually 72 characters or fewer.
+- Use imperative, present-tense wording.
+- Summarize the primary user-facing or engineering change, not the file list.
+
+Body rules:
+
+- Always add a body when the staged diff changes more than one file, removes files, changes generated/binary artifacts, or the subject cannot explain the impact by itself.
+- Use one of these two body styles:
+  - Detail bullets for one primary change with important implementation details.
+  - Additional subject-style summary lines for several related change categories in one commit.
+- Do not mix detail bullets and subject-style summary lines in the same body unless the diff genuinely needs both.
+- Mention paths only when they clarify location or impact, usually in parentheses.
+- Use body lines to explain what changed and why it matters; do not restate the subject mechanically.
+- For subject-style body lines, the first additional summary line may directly follow the primary subject on the next line, matching the repository's multi-summary sample. Use a blank line before a new logical group and before the co-author trailer.
+
+Detail bullet style:
+
+```text
+chore: remove old Python package and clean up .a files
+
+- Delete fisheye_stitcher/ Python package (migrated to C++ implementation)
+- Remove .a files from git tracking (sdk_example/lib/)
+
+Co-Authored-By: Codex <current-model> <noreply@openai.com>
+```
+
+Subject-style body style:
+
+```text
+chore(gitignore): ignore test_files directory
+docs: add fish-eye panorama stitching documentation
+
+feat(sdk): add sdk example code
+
+Co-Authored-By: Codex <current-model> <noreply@openai.com>
+```
+
+Footer rules:
+
+- Include a co-author trailer by default:
+  `Co-Authored-By: Codex <current-model> <noreply@openai.com>`
+- Use the current Codex model slug when it is available, for example `gpt-5.5` from the current session or from Codex config.
+- Codex documents `model` as the config key and supports model switching with CLI/UI controls, but does not document a stable shell environment variable for the active model. If the active session model is visible in context, use it before falling back to config.
+- If Codex config defines `commit_attribution`, use that string exactly. If it is set to an empty string, omit the co-author trailer.
+- If no model can be resolved, fall back to Codex's canonical OpenAI attribution: `Co-Authored-By: Codex <noreply@openai.com>`.
+- Place the trailer after a blank line at the end of the message.
+- Omit the trailer only when the user explicitly asks for no attribution.
 - Verify the generated message is accurate against the staged diff before committing.
+
+Resolve the trailer before writing the commit message:
+
+```bash
+commit_attribution=""
+commit_attribution_set="false"
+current_model=""
+repo_root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+
+for config in "$repo_root/.codex/config.toml" "${CODEX_HOME:-$HOME/.codex}/config.toml"; do
+  [ -f "$config" ] || continue
+  if [ "$commit_attribution_set" = "false" ]; then
+    attribution_line="$(awk -F= '/^[[:space:]]*commit_attribution[[:space:]]*=/ { value=$2; sub(/^[[:space:]]*/, "", value); sub(/[[:space:]]*$/, "", value); gsub(/^"|"$/, "", value); print "set:" value; exit }' "$config")"
+    if [ -n "$attribution_line" ]; then
+      commit_attribution_set="true"
+      commit_attribution="${attribution_line#set:}"
+    fi
+  fi
+  if [ -z "$current_model" ]; then
+    current_model="$(awk -F= '/^[[:space:]]*model[[:space:]]*=/ { value=$2; sub(/^[[:space:]]*/, "", value); sub(/[[:space:]]*$/, "", value); gsub(/^"|"$/, "", value); print value; exit }' "$config")"
+  fi
+done
+
+if [ "$commit_attribution_set" = "true" ] && [ -n "$commit_attribution" ]; then
+  coauthor_trailer="$commit_attribution"
+elif [ "$commit_attribution_set" = "true" ]; then
+  coauthor_trailer=""
+elif [ -n "$current_model" ]; then
+  coauthor_trailer="Co-Authored-By: Codex ${current_model} <noreply@openai.com>"
+else
+  coauthor_trailer="Co-Authored-By: Codex <noreply@openai.com>"
+fi
+```
 
 Examples:
 
 ```text
-fix(auth): handle expired refresh tokens
-feat(cli): add stale branch cleanup command
-chore: update release workflow
+docs: expand commit command workflow constraints
+
+- Add runtime message contract for structured commit bodies
+- Document co-author trailer handling
+
+Co-Authored-By: Codex <current-model> <noreply@openai.com>
 ```
 
 ## Commit
 
-Create one commit:
+Create one commit. Prefer a temporary commit message file with `git commit -F` so multi-line bodies and trailers preserve the exact required layout:
 
 ```bash
-git commit -m "type(scope): concise summary"
+tmpfile="$(mktemp)"
+{
+  printf '%s\n' "type(scope): concise summary"
+  printf '\n'
+  printf '%s\n' "- Detail one"
+  printf '%s\n' "- Detail two"
+  if [ -n "$coauthor_trailer" ]; then
+    printf '\n'
+    printf '%s\n' "$coauthor_trailer"
+  fi
+} > "$tmpfile"
+git commit -F "$tmpfile"
+rm -f "$tmpfile"
 ```
 
-For a body, use additional `-m` arguments:
+For subject-style body lines, preserve the exact line breaks in the message file:
 
 ```bash
-git commit -m "type(scope): concise summary" -m "Optional body paragraph."
+tmpfile="$(mktemp)"
+{
+  printf '%s\n' "chore(gitignore): ignore test_files directory"
+  printf '%s\n' "docs: add fish-eye panorama stitching documentation"
+  printf '\n'
+  printf '%s\n' "feat(sdk): add sdk example code"
+  if [ -n "$coauthor_trailer" ]; then
+    printf '\n'
+    printf '%s\n' "$coauthor_trailer"
+  fi
+} > "$tmpfile"
+git commit -F "$tmpfile"
+rm -f "$tmpfile"
 ```
 
 If hooks fail, report the failure and do not bypass the hook.
