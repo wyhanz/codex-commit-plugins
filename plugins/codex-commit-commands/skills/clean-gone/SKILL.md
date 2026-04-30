@@ -7,6 +7,12 @@ description: Remove local git branches whose upstream tracking branch is gone, i
 
 Delete local branches whose upstream tracking branch is marked `[gone]`, including associated worktrees.
 
+## When to use
+
+Use this skill after PRs are merged and remote branches have been deleted, when the user asks to clean stale branches, remove gone branches, tidy local branch lists, or run repository branch maintenance.
+
+Do not use this skill to delete remote branches, delete old branches that are not marked `[gone]`, clean files, reset a repository, or remove the current branch.
+
 ## Operating rules
 
 - Only delete branches whose upstream tracking state is exactly `[gone]`.
@@ -15,6 +21,18 @@ Delete local branches whose upstream tracking branch is marked `[gone]`, includi
 - Remove an associated worktree before deleting its branch.
 - Do not delete remote branches.
 - Do not use `git clean`, `git reset`, `git push --delete`, or file-system `rm -rf`.
+
+## Workflow
+
+Follow this sequence exactly:
+
+1. Run `git fetch --prune`.
+2. List local branches and worktrees.
+3. Identify local branches whose upstream tracking state is exactly `[gone]`.
+4. Remove associated worktrees for gone branches before deleting those branches.
+5. Delete only gone branches that are not the current branch.
+6. Verify branch and worktree state after cleanup.
+7. Report removed branches and worktrees, or report that no cleanup was needed.
 
 ## Inspect and prune
 
@@ -81,6 +99,12 @@ After cleanup, run:
 git branch -vv
 git worktree list
 ```
+
+## Troubleshooting
+
+- If no branches are marked `[gone]`, report that no cleanup is needed and do not delete anything.
+- If a gone branch is the current branch, skip it and report it.
+- If a worktree removal fails, stop and report the worktree path and branch.
 
 ## Final response
 

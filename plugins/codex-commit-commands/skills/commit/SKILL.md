@@ -1,10 +1,16 @@
 ---
 name: commit
-description: Create exactly one git commit from current staged and unstaged changes. Use when explicitly invoked as $commit or when the user asks Codex to commit local git changes.
+description: Create exactly one git commit from current staged and unstaged changes. Use when explicitly invoked as $commit, when the user asks Codex to commit local git changes, or when a workflow requires a routine development commit.
 ---
 
 # Commit
 Create exactly one git commit from the current repository changes.
+
+## When to use
+
+Use this skill for routine local commits during development, including natural language requests such as "commit these changes", "create a commit", or "save this work in git".
+
+Do not use this skill when the user asks to push, create a branch, create a pull request, amend an existing commit, stash changes, clean branches, or only inspect git status.
 
 ## Operating rules
 
@@ -15,6 +21,19 @@ Create exactly one git commit from the current repository changes.
 - Prefer explicit path staging over `git add .` or `git add -A` when there are untracked files or potentially sensitive files.
 - Never stage files that appear to contain secrets or credentials.
 - Do not print secret values from diffs; summarize the risk instead.
+
+## Workflow
+
+Follow this sequence exactly:
+
+1. Analyze the current git state.
+2. Review both staged and unstaged changes.
+3. Check changed paths and diffs for likely secrets.
+4. Examine recent commit messages to match the repository's style.
+5. Draft an appropriate commit message.
+6. Stage only relevant files for one coherent commit.
+7. Create exactly one commit.
+8. Show the final commit status.
 
 ## Inspect context
 
@@ -30,6 +49,8 @@ git log --oneline -10
 ```
 
 If there are no staged or unstaged changes, stop and report that there is nothing to commit.
+
+If the repository has existing staged changes, preserve them unless they are unsafe. If unrelated unstaged changes exist, leave them unstaged and report them in the final response.
 
 ## Secret and safety checks
 
@@ -59,6 +80,7 @@ If a likely secret is present, do not commit it. Report the filename and reason 
 
 - Preserve any files that are already staged unless they are unsafe.
 - Stage only relevant files for one coherent commit.
+- Prefer one focused development unit over mixing unrelated docs, formatting, generated artifacts, and source edits.
 - Use explicit pathspecs when practical:
 
 ```bash
@@ -88,6 +110,7 @@ Rules:
 - Use a body only when it adds useful context.
 - Do not mention files mechanically unless that is the repository style.
 - Add attribution only if the repository already uses it or the user asks for it.
+- Verify the generated message is accurate against the staged diff before committing.
 
 Examples:
 
@@ -112,6 +135,12 @@ git commit -m "type(scope): concise summary" -m "Optional body paragraph."
 ```
 
 If hooks fail, report the failure and do not bypass the hook.
+
+## Troubleshooting
+
+- If `git status --short` shows no changes, report that there is nothing to commit.
+- If `git diff --cached --check` reports whitespace or conflict-marker errors, stop and report the exact files.
+- If a hook fails, report the hook failure and leave the repository state intact.
 
 ## Final response
 

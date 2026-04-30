@@ -1,6 +1,6 @@
 {
   "name": "codex-commit-commands",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Git commit, push, pull request, and stale branch cleanup workflows for Codex.",
   "author": {
     "name": "wyuhan"

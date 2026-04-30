@@ -1,6 +1,6 @@
 interface:
   display_name: "Clean Gone Branches"
-  short_description: "Delete local branches whose upstream branch is gone, including associated worktrees."
+  short_description: "Delete local gone branches and worktrees."
   default_prompt: "Use $clean-gone to remove local branches whose upstream branch is gone."
 policy:
-  allow_implicit_invocation: false
+  allow_implicit_invocation: true

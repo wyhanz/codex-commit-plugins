@@ -3,4 +3,4 @@ interface:
   short_description: "Create a single git commit from current changes."
   default_prompt: "Use $commit to create one git commit from the current staged and unstaged changes."
 policy:
-  allow_implicit_invocation: false
+  allow_implicit_invocation: true

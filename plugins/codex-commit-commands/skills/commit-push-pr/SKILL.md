@@ -7,6 +7,12 @@ description: Commit local changes if needed, push the current or newly created b
 
 Create a coherent commit if needed, push the branch to `origin`, and open a GitHub pull request using the GitHub CLI.
 
+## When to use
+
+Use this skill when the user is ready to publish work and asks to commit and push, open a PR, create a pull request, or run a complete commit-push-PR workflow.
+
+Do not use this skill for a local-only commit, branch cleanup, amend, rebase, merge, force-push, or PR review task.
+
 ## Operating rules
 
 - Do not edit source files.
@@ -15,6 +21,19 @@ Create a coherent commit if needed, push the branch to `origin`, and open a GitH
 - Use `gh pr create`; do not use browser automation.
 - If a pull request already exists, do not create a duplicate. Report the existing PR URL.
 - Add attribution only if the repository already uses it or the user asks for it.
+
+## Workflow
+
+Follow this sequence exactly:
+
+1. Check that GitHub CLI is installed and authenticated.
+2. Fetch and inspect repository state.
+3. Determine the base branch.
+4. Create a new feature branch when currently on `main`, `master`, `trunk`, or `develop`.
+5. If local changes exist, stage and create exactly one coherent commit using the commit safety rules below.
+6. Analyze all branch commits and the full branch diff for the PR title and body.
+7. Push the branch to `origin`.
+8. Create one pull request with `gh pr create`, or report the existing PR URL.
 
 ## Required tools
 
@@ -75,13 +94,58 @@ If already on a feature branch, use the current branch.
 
 ## Commit changes if needed
 
-If there are staged or unstaged changes, follow the `$commit` skill's safety and message rules:
+If there are staged or unstaged changes, follow these commit safety and message rules directly. Do not rely on another skill being loaded.
 
-- inspect recent commits
-- skip likely secrets
-- stage one coherent change
-- create exactly one commit
-- do not bypass hooks
+Inspect recent commits:
+
+```bash
+git log --oneline -10
+```
+
+Before staging, inspect changed paths and diffs for likely secrets. Never stage files that appear to contain secrets or credentials, and do not print secret values from diffs.
+
+Skip or warn on paths such as:
+
+- `.env`, `.env.*`
+- `*.pem`, `*.key`, `*.p12`, `*.pfx`
+- `id_rsa*`, `id_ed25519*`
+- `credentials.json`, `credentials*.json`
+- `secrets.yml`, `secrets.yaml`, `secret*.json`
+- `.npmrc`, `.pypirc`, files containing auth tokens
+
+Treat these diff markers as high risk:
+
+- `BEGIN PRIVATE KEY`
+- `AWS_SECRET_ACCESS_KEY`
+- `GITHUB_TOKEN`, `ghp_`, `github_pat_`
+- `OPENAI_API_KEY`, `sk-`
+- `SLACK_BOT_TOKEN`, `xoxb-`
+- `password=`, `api_key=`, `secret=`, `token=`
+
+Stage only relevant files for one coherent commit, preserving already staged safe files. Prefer explicit pathspecs over `git add .` or `git add -A` when there are untracked files or potentially sensitive files:
+
+```bash
+git add -- path/to/file another/path
+```
+
+After staging, inspect the staged commit:
+
+```bash
+git status --short
+git diff --cached --stat
+git diff --cached
+git diff --cached --check
+```
+
+Use recent commits to match the repository's style. If no clear style exists, prefer Conventional Commits. Use an imperative subject line, usually 72 characters or fewer, and add attribution only if the repository already uses it or the user asks for it.
+
+Create exactly one commit:
+
+```bash
+git commit -m "type(scope): concise summary"
+```
+
+Do not bypass hooks with `--no-verify` unless the user explicitly asks. If hooks fail, report the failure and stop.
 
 After committing, verify:
 
@@ -115,6 +179,8 @@ Draft a PR title matching the repository style. Draft the body with this structu
 
 Only claim tests that were actually run. If no tests were run, include `- [ ] Not run (reason: <reason>)`.
 
+If the repository has a pull request template, follow it while preserving the summary and test-plan information above.
+
 ## Push and create PR
 
 Push the branch:
@@ -146,6 +212,12 @@ gh pr view --json url -q .url
 ```
 
 and report the existing URL.
+
+## Troubleshooting
+
+- If `gh` is missing or unauthenticated, stop before committing or pushing and explain the requirement.
+- If no base branch can be determined, stop and report the missing `origin/HEAD`, `origin/main`, or `origin/master`.
+- If `gh pr create` fails, report the command failure and leave the branch pushed.
 
 ## Final response
 
