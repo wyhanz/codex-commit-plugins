@@ -1,46 +1,147 @@
-# Codex Commit Commands
+# Codex Commit Commands Plugin
 
-A Codex plugin for common Git workflows:
+Streamline your git workflow in Codex with explicit skills for committing, pushing, creating pull requests, and cleaning stale local branches.
 
-- `$commit` creates exactly one commit from the current staged and unstaged changes.
-- `$commit-push-pr` commits local changes if needed, pushes the branch, and creates a GitHub pull request with `gh`.
-- `$clean-gone` removes local branches whose upstream tracking branch is gone, including associated worktrees.
+## Overview
 
-The skills are explicit-invocation only, so Codex will use them when you ask for `$commit`, `$commit-push-pr`, or `$clean-gone`.
+The Codex Commit Commands Plugin automates common git operations, reducing context switching and manual command execution. Instead of running multiple git commands yourself, invoke a single Codex skill to handle the workflow.
 
-## Install From GitHub
+## Commands
 
-This plugin is published through the marketplace root in the repository, not from the plugin directory directly. The repository root must contain `.agents/plugins/marketplace.json`.
+### `$commit`
 
-Install the marketplace from GitHub:
+Creates a git commit with an automatically generated commit message based on staged and unstaged changes.
+
+**What it does:**
+1. Analyzes current git status
+2. Reviews both staged and unstaged changes
+3. Checks changed paths and diffs for likely secrets
+4. Examines recent commit messages to match your repository's style
+5. Drafts an appropriate commit message
+6. Stages relevant files
+7. Creates exactly one commit
+
+**Usage:**
+```text
+$commit
+```
+
+**Example workflow:**
+```text
+# Make some changes to your code
+# Then invoke:
+$commit
+
+# Codex will:
+# - Review your changes
+# - Stage the relevant files
+# - Create one commit with an appropriate message
+# - Show you the commit status
+```
+
+**Features:**
+- Automatically drafts commit messages that match your repo's style
+- Falls back to conventional commit style when no clear repo style exists
+- Avoids committing files that look like secrets or credentials
+- Does not add assistant attribution unless the repo already uses it or you ask for it
+- Does not push, create branches, or open pull requests
+
+### `$commit-push-pr`
+
+Complete workflow skill that commits local changes if needed, pushes the branch, and creates a pull request.
+
+**What it does:**
+1. Checks that `gh` is installed and authenticated
+2. Creates a new feature branch if currently on `main`, `master`, `trunk`, or `develop`
+3. Stages and commits changes with an appropriate message when needed
+4. Pushes the branch to `origin`
+5. Creates a pull request using `gh pr create`
+6. Provides the PR URL
+
+**Usage:**
+```text
+$commit-push-pr
+```
+
+**Example workflow:**
+```text
+# Make your changes
+# Then invoke:
+$commit-push-pr
+
+# Codex will:
+# - Create a feature branch if needed
+# - Commit your changes if needed
+# - Push to origin
+# - Open a PR with summary and test plan
+# - Give you the PR URL to review
+```
+
+**Features:**
+- Analyzes all commits in the branch for the PR description
+- Creates PR descriptions with:
+  - Summary of changes
+  - Test plan checklist
+- Handles branch creation automatically when invoked from a protected base branch
+- Uses GitHub CLI (`gh`) for PR creation
+- Does not force-push, merge, rebase, auto-merge, or delete branches
+
+**Requirements:**
+- GitHub CLI (`gh`) must be installed and authenticated
+- Repository must have a remote named `origin`
+
+### `$clean-gone`
+
+Cleans up local branches that have been deleted from the remote repository.
+
+**What it does:**
+1. Runs `git fetch --prune`
+2. Lists local branches to identify `[gone]` upstream status
+3. Identifies worktrees associated with `[gone]` branches
+4. Removes associated worktrees before deleting those branches
+5. Deletes local branches marked as `[gone]`
+6. Provides feedback on removed branches
+
+**Usage:**
+```text
+$clean-gone
+```
+
+**Example workflow:**
+```text
+# After PRs are merged and remote branches are deleted
+$clean-gone
+
+# Codex will:
+# - Find all local branches marked as [gone]
+# - Remove any associated worktrees
+# - Delete the stale local branches
+# - Report what was cleaned up
+```
+
+**Features:**
+- Handles both regular branches and worktree branches
+- Safely removes worktrees before deleting branches
+- Shows clear feedback about what was removed
+- Reports if no cleanup was needed
+- Only removes branches whose upstream state is exactly `[gone]`
+
+**When to use:**
+- After merging and deleting remote branches
+- When your local branch list is cluttered with stale branches
+- During regular repository maintenance
+
+## Installation
+
+Install this plugin through the Codex plugin marketplace. This repository provides the marketplace file at `.agents/plugins/marketplace.json`.
 
 ```bash
 codex plugin marketplace add wyuhan/codex-commit-plugins
 ```
 
-To pin a branch, tag, or commit:
-
-```bash
-codex plugin marketplace add wyuhan/codex-commit-plugins@main
-```
-
-You can also use a Git URL:
-
-```bash
-codex plugin marketplace add https://github.com/wyuhan/codex-commit-plugins.git
-```
-
-For a private repository, use an SSH URL that your local Git can access:
-
-```bash
-codex plugin marketplace add git@github.com:wyuhan/codex-commit-plugins.git
-```
-
 After adding the marketplace, restart Codex, open `/plugins`, and install **Codex Commit Commands**.
 
-## Install From A Local Checkout
-
-Clone the repository, then add the checkout as a local marketplace:
+For local development:
 
 ```bash
 git clone https://github.com/wyuhan/codex-commit-plugins.git
@@ -48,52 +149,97 @@ cd codex-commit-plugins
 codex plugin marketplace add .
 ```
 
-Restart Codex, open `/plugins`, and install **Codex Commit Commands**.
+## Best Practices
 
-## Update Or Remove
+### Using `$commit`
+- Review the staged changes before committing
+- Let Codex analyze your changes and match your repo's commit style
+- Verify the generated message is accurate
+- Use for routine commits during development
 
-Upgrade the configured marketplace:
+### Using `$commit-push-pr`
+- Use when you're ready to create a PR
+- Ensure your changes are complete and tested
+- Codex will analyze the full branch history for the PR description
+- Review the PR description and edit if needed
+- Use when you want to minimize context switching
 
-```bash
-codex plugin marketplace upgrade codex-commit-plugins
-```
+### Using `$clean-gone`
+- Run periodically to keep your branch list clean
+- Especially useful after merging multiple PRs
+- Safe to run because it only removes branches already deleted remotely
+- Helps maintain a tidy local repository
 
-Remove it from Codex:
+## Workflow Integration
 
-```bash
-codex plugin marketplace remove codex-commit-plugins
-```
-
-## Usage
-
-Invoke the skills explicitly in Codex:
-
+### Quick commit workflow:
 ```text
+# Write code
 $commit
-$commit-push-pr
-$clean-gone
+# Continue development
 ```
 
-`$commit` inspects the current repository, checks for likely secrets, stages one coherent change, and creates one commit.
+### Feature branch workflow:
+```text
+# Develop feature across multiple commits
+$commit  # First commit
+# More changes
+$commit  # Second commit
+# Ready to create PR
+$commit-push-pr
+```
 
-`$commit-push-pr` follows the commit workflow, pushes the current branch to `origin`, and creates a pull request with GitHub CLI.
-
-`$clean-gone` fetches with prune, finds local branches whose upstream state is `[gone]`, removes associated worktrees, and deletes those local branches.
+### Maintenance workflow:
+```text
+# After several PRs are merged
+$clean-gone
+# Clean workspace ready for next feature
+```
 
 ## Requirements
 
-- Git must be installed and configured.
-- `$commit-push-pr` requires GitHub CLI (`gh`) installed and authenticated.
-- The repository should have a remote named `origin` for push and PR workflows.
+- Git must be installed and configured
+- For `$commit-push-pr`: GitHub CLI (`gh`) must be installed and authenticated
+- Repository must be a git repository with a remote
 
-## Safety Notes
+## Troubleshooting
 
-- The commit workflows do not push unless `$commit-push-pr` is invoked.
-- The cleanup workflow only targets local branches whose upstream tracking state is exactly `[gone]`.
-- The skills include command policies for Codex, but Codex's shell sandbox and approval settings remain the enforcement layer.
+### `$commit` reports no changes
 
-## License And Attribution
+**Issue**: No changes to commit
 
-This plugin is licensed under Apache-2.0. It adapts workflow ideas from Anthropic's Apache-2.0 `commit-commands` plugin in `anthropics/claude-plugins-official`.
+**Solution**:
+- Ensure you have unstaged or staged changes
+- Run `git status --short` to verify changes exist
 
-See `LICENSE` and `THIRD_PARTY_NOTICES.md` in this plugin directory for license terms, upstream attribution, and modification notes.
+### `$commit-push-pr` fails to create PR
+
+**Issue**: `gh pr create` command fails
+
+**Solution**:
+- Install GitHub CLI: `brew install gh` on macOS or see the GitHub CLI installation guide
+- Authenticate: `gh auth login`
+- Ensure repository has a GitHub remote named `origin`
+
+### `$clean-gone` doesn't find branches
+
+**Issue**: No branches marked as `[gone]`
+
+**Solution**:
+- Run `git fetch --prune` to update remote tracking
+- Branches must be deleted from the remote to show as `[gone]`
+
+## Tips
+
+- **Combine with other tools**: Use `$commit` during development, then `$commit-push-pr` when ready
+- **Let Codex draft messages**: The commit message analysis follows your repo's style
+- **Regular cleanup**: Run `$clean-gone` weekly to maintain a clean branch list
+- **Review before pushing**: Always review the commit message and changes before pushing
+
+## Author
+
+wyuhan
+
+## Version
+
+0.1.0
