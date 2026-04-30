@@ -4,9 +4,6 @@ description: Create exactly one git commit from current staged and unstaged chan
 ---
 
 # Commit
-
-Notice: This skill adapts Anthropic's Apache-2.0 `commit-commands` workflow for Codex plugin and skill conventions.
-
 Create exactly one git commit from the current repository changes.
 
 ## Operating rules

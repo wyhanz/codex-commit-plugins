@@ -5,8 +5,6 @@ description: Remove local git branches whose upstream tracking branch is gone, i
 
 # Clean Gone Branches
 
-Notice: This skill adapts Anthropic's Apache-2.0 `commit-commands` workflow for Codex plugin and skill conventions.
-
 Delete local branches whose upstream tracking branch is marked `[gone]`, including associated worktrees.
 
 ## Operating rules

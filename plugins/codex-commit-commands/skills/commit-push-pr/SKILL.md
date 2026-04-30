@@ -5,8 +5,6 @@ description: Commit local changes if needed, push the current or newly created b
 
 # Commit, Push, and Create Pull Request
 
-Notice: This skill adapts Anthropic's Apache-2.0 `commit-commands` workflow for Codex plugin and skill conventions.
-
 Create a coherent commit if needed, push the branch to `origin`, and open a GitHub pull request using the GitHub CLI.
 
 ## Operating rules
