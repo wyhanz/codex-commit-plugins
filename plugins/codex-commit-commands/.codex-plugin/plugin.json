@@ -1,0 +1,24 @@
+{
+  "name": "codex-commit-commands",
+  "version": "0.1.0",
+  "description": "Git commit, push, pull request, and stale branch cleanup workflows for Codex.",
+  "author": {
+    "name": "wyuhan"
+  },
+  "license": "Apache-2.0",
+  "keywords": ["codex", "git", "commit", "pull-request", "github"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Codex Commit Commands",
+    "shortDescription": "Commit, push PR, and clean stale branches",
+    "longDescription": "A lightweight Codex plugin inspired by the Claude commit-commands workflow. It provides explicit skills for creating one commit, committing and opening a GitHub pull request, and cleaning local branches whose upstream branch is gone.",
+    "developerName": "wyuhan",
+    "category": "Productivity",
+    "capabilities": ["Read", "Write"],
+    "defaultPrompt": [
+      "Use $commit to create a single git commit from the current changes.",
+      "Use $commit-push-pr to commit changes, push the branch, and create a GitHub pull request.",
+      "Use $clean-gone to remove local branches whose upstream branch is gone."
+    ]
+  }
+}

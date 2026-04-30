@@ -1,0 +1,20 @@
+{
+  "name": "codex-commit-plugins",
+  "interface": {
+    "displayName": "Codex Commit Plugins"
+  },
+  "plugins": [
+    {
+      "name": "codex-commit-commands",
+      "source": {
+        "source": "local",
+        "path": "./plugins/codex-commit-commands"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
