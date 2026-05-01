@@ -111,7 +111,7 @@ Default shape:
 
 <details body>
 
-Co-Authored-By: Codex <current-model> <noreply@openai.com>
+Co-Authored-By: Codex <current-model> <codex@openai.com>
 ```
 
 Subject rules:
@@ -141,7 +141,7 @@ chore: remove old Python package and clean up .a files
 - Delete fisheye_stitcher/ Python package (migrated to C++ implementation)
 - Remove .a files from git tracking (sdk_example/lib/)
 
-Co-Authored-By: Codex <current-model> <noreply@openai.com>
+Co-Authored-By: Codex <current-model> <codex@openai.com>
 ```
 
 Subject-style body style:
@@ -152,17 +152,17 @@ docs: add fish-eye panorama stitching documentation
 
 feat(sdk): add sdk example code
 
-Co-Authored-By: Codex <current-model> <noreply@openai.com>
+Co-Authored-By: Codex <current-model> <codex@openai.com>
 ```
 
 Footer rules:
 
 - Include a co-author trailer by default:
-  `Co-Authored-By: Codex <current-model> <noreply@openai.com>`
+  `Co-Authored-By: Codex <current-model> <codex@openai.com>`
 - Use the current Codex model slug when it is available, for example `gpt-5.5` from the current session or from Codex config.
 - Codex documents `model` as the config key and supports model switching with CLI/UI controls, but does not document a stable shell environment variable for the active model. If the active session model is visible in context, use it before falling back to config.
 - If Codex config defines `commit_attribution`, use that string exactly. If it is set to an empty string, omit the co-author trailer.
-- If no model can be resolved, fall back to Codex's canonical OpenAI attribution: `Co-Authored-By: Codex <noreply@openai.com>`.
+- If no model can be resolved, fall back to Codex's canonical OpenAI attribution: `Co-Authored-By: Codex <codex@openai.com>`.
 - Place the trailer after a blank line at the end of the message.
 - Omit the trailer only when the user explicitly asks for no attribution.
 - Verify the generated message is accurate against the staged diff before committing.
@@ -194,9 +194,9 @@ if [ "$commit_attribution_set" = "true" ] && [ -n "$commit_attribution" ]; then
 elif [ "$commit_attribution_set" = "true" ]; then
   coauthor_trailer=""
 elif [ -n "$current_model" ]; then
-  coauthor_trailer="Co-Authored-By: Codex ${current_model} <noreply@openai.com>"
+  coauthor_trailer="Co-Authored-By: Codex ${current_model} <codex@openai.com>"
 else
-  coauthor_trailer="Co-Authored-By: Codex <noreply@openai.com>"
+  coauthor_trailer="Co-Authored-By: Codex <codex@openai.com>"
 fi
 ```
 
@@ -208,7 +208,7 @@ docs: expand commit command workflow constraints
 - Add runtime message contract for structured commit bodies
 - Document co-author trailer handling
 
-Co-Authored-By: Codex <current-model> <noreply@openai.com>
+Co-Authored-By: Codex <current-model> <codex@openai.com>
 ```
 
 ## Commit

@@ -10,6 +10,29 @@ This repository currently publishes one plugin:
 
 - **Codex Commit Commands** (`codex-commit-commands`) provides `$commit`, `$commit-push-pr`, and `$clean-gone`.
 
+## Commit Style
+
+The commit skills use Conventional Commit subjects with a structured body and Codex co-author trailer:
+
+```text
+<type>(optional-scope): <primary change>
+
+<details body>
+
+Co-Authored-By: Codex <current-model> <codex@openai.com>
+```
+
+Example:
+
+```text
+chore: remove old Python package and clean up .a files
+
+- Delete fisheye_stitcher/ Python package (migrated to C++ implementation)
+- Remove .a files from git tracking (sdk_example/lib/)
+
+Co-Authored-By: Codex gpt-5.5 <codex@openai.com>
+```
+
 ## Install From GitHub
 
 Codex installs plugins through a marketplace root. This repository root contains `.agents/plugins/marketplace.json`, so add the repository itself as the marketplace:
