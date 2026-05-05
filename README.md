@@ -4,7 +4,7 @@ A Codex plugin marketplace that brings Claude Code-style commit commands to Code
 
 ## Intent
 
-This repository implements the Claude Code `commit-commands` workflow for Codex. The goal is to provide Codex-native skills for structured commits, commit-and-PR handoff, and stale branch cleanup while preserving the safety checks and workflow ergonomics developers expect from Claude Code's commit plugin.
+This repository provides Codex plugins for common git workflows: commit, commit-and-PR, and stale branch cleanup.
 
 This repository currently publishes one plugin:
 
@@ -38,25 +38,25 @@ Co-Authored-By: Codex gpt-5.5 <codex@openai.com>
 Codex installs plugins through a marketplace root. This repository root contains `.agents/plugins/marketplace.json`, so add the repository itself as the marketplace:
 
 ```bash
-codex plugin marketplace add wyuhan/codex-commit-plugins
+codex plugin marketplace add wyhanz/codex-commit-plugins
 ```
 
 To pin a branch, tag, or commit:
 
 ```bash
-codex plugin marketplace add wyuhan/codex-commit-plugins@main
+codex plugin marketplace add wyhanz/codex-commit-plugins@main
 ```
 
 You can also install with a Git URL:
 
 ```bash
-codex plugin marketplace add https://github.com/wyuhan/codex-commit-plugins.git
+codex plugin marketplace add https://github.com/wyhanz/codex-commit-plugins.git
 ```
 
 For private forks or SSH-only access:
 
 ```bash
-codex plugin marketplace add git@github.com:wyuhan/codex-commit-plugins.git
+codex plugin marketplace add git@github.com:wyhanz/codex-commit-plugins.git
 ```
 
 After adding the marketplace, restart Codex, open `/plugins`, and install **Codex Commit Commands**.
@@ -64,7 +64,7 @@ After adding the marketplace, restart Codex, open `/plugins`, and install **Code
 ## Install From A Local Checkout
 
 ```bash
-git clone https://github.com/wyuhan/codex-commit-plugins.git
+git clone https://github.com/wyhanz/codex-commit-plugins.git
 cd codex-commit-plugins
 codex plugin marketplace add .
 ```

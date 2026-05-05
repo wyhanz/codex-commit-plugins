@@ -136,7 +136,7 @@ $clean-gone
 Install this plugin through the Codex plugin marketplace. This repository provides the marketplace file at `.agents/plugins/marketplace.json`.
 
 ```bash
-codex plugin marketplace add wyuhan/codex-commit-plugins
+codex plugin marketplace add wyhanz/codex-commit-plugins
 ```
 
 After adding the marketplace, restart Codex, open `/plugins`, and install **Codex Commit Commands**.
@@ -144,7 +144,7 @@ After adding the marketplace, restart Codex, open `/plugins`, and install **Code
 For local development:
 
 ```bash
-git clone https://github.com/wyuhan/codex-commit-plugins.git
+git clone https://github.com/wyhanz/codex-commit-plugins.git
 cd codex-commit-plugins
 codex plugin marketplace add .
 ```
@@ -238,7 +238,7 @@ $clean-gone
 
 ## Author
 
-wyuhan
+wyhanz
 
 ## Version
 
